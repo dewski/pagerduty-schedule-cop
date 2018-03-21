@@ -8,6 +8,10 @@ class Pagerduty
     @token = token
   end
 
+  def users
+    users = api('/users')
+  end
+
   private
     def api(path)
       self.class.get(path, headers: {

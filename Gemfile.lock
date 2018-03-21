@@ -3,6 +3,7 @@ GEM
   specs:
     domain_name (0.5.20170404)
       unf (>= 0.0.5, < 1.0.0)
+    dotenv (2.2.1)
     foreman (0.84.0)
       thor (~> 0.19.1)
     http-cookie (1.0.3)
@@ -29,6 +30,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  dotenv (= 2.2.1)
   foreman (= 0.84.0)
   httparty (= 0.16.1)
   rack (= 2.0.4)
