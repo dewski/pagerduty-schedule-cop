@@ -1,1 +1,3 @@
-github-dotcom-oncall: github-dotcom-oncall
+github-dotcom-oncall:
+  pagerduty_schedule_id: PGNZFVS
+  github_repository: github/github-dotcom-oncall

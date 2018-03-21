@@ -8,13 +8,17 @@ class Pagerduty
     @token = token
   end
 
-  def users
-    users = api('/users')
+  def users(offset: 0)
+    users = api('/users', offset: offset)
+  end
+
+  def schedule(id)
+    schedile = api("/schedules/#{id}")
   end
 
   private
-    def api(path)
-      self.class.get(path, headers: {
+    def api(path, query = {})
+      self.class.get(path, query: query, headers: {
         'Authorization' => "Token token=#{@token}",
         'Accept' => 'application/vnd.pagerduty+json;version=2',
       })

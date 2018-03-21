@@ -3,4 +3,4 @@
 
 require_relative "../config/environment"
 
-p ScheduleCop.pagerduty.users
+ScheduleCop::Schedule.process!
