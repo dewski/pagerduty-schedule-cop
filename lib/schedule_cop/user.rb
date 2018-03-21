@@ -18,7 +18,7 @@ module ScheduleCop
 
     def self.from_response(users)
       formatted_users = users.collect do |user|
-        [user["id"], user["name"]]
+        [user["id"], user["name"] || user["summary"]]
       end
 
       Hash[formatted_users]

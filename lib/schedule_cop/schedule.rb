@@ -25,7 +25,8 @@ module ScheduleCop
     end
 
     def process(users)
-      pagerduty_schedule["schedule"]["schedule_layers"].each do |layer|
+      schedule_name = pagerduty_schedule["name"]
+      pagerduty_schedule["schedule_layers"].each do |layer|
         layer_users = layer["users"].collect { |user| user["user"] }
         current_users = ScheduleCop::User.from_response(layer_users)
         previous_schedule_users = schedule_users(layer: layer["id"])
@@ -34,9 +35,26 @@ module ScheduleCop
         if previous_schedule_users.empty?
           puts "[#{@name}][#{layer["name"]}] No users stored yet for #{@name}, storing #{users.length} users."
         else
+          # Users that were added to the rotation.
           added = current_users.keys - previous_schedule_users.keys
+
+          # Users that were removed from the rotation.
           removed = previous_schedule_users.keys - current_users.keys
-          puts "[#{@name}][#{layer["name"]}] Adding #{added.length} users, removing #{removed.length} users."
+
+          # Users that were removed from the rotation & entire instance, likely
+          # offboarded.
+          offboarded = removed - users.keys
+
+          puts "[#{@name}][#{layer["name"]}] Adding #{added.length} users, removing #{removed.length} users, #{offboarded.length} users offboarded."
+
+          offboarded.each do |pagerduty_id|
+            index = previous_schedule_users.find_index { |key, _| pagerduty_id == key }
+            if issue = create_issue(previous_schedule_users[pagerduty_id], schedule_name, index)
+              puts "[#{@name}][#{layer["name"]}] Created issue for #{pagerduty_id} at #{issue[:html_url]}."
+            else
+              puts "[#{@name}][#{layer["name"]}] Could not create issue for #{pagerduty_id} at #{index}."
+            end
+          end
 
           # TODO: Find index of removed users
 
@@ -48,6 +66,14 @@ module ScheduleCop
     end
 
     private
+
+    def create_issue(username, schedule_name, index)
+      ScheduleCop.octokit.create_issue(@github_repository, "#{username} was removed from #{schedule_name}", "At #{index} index.")
+    rescue Octokit::NotFound => error
+      puts error
+    rescue StandardError => error
+      puts error
+    end
 
     # { "pagerduty_id" => "dewski" }
     def schedule_users(layer: nil)
@@ -69,7 +95,7 @@ module ScheduleCop
 
     def pagerduty_schedule
       return @pagerduty_schedule if defined?(@pagerduty_schedule)
-      @pagerduty_schedule = ScheduleCop.pagerduty.schedule(@pagerduty_id)
+      @pagerduty_schedule = ScheduleCop.pagerduty.schedule(@pagerduty_id)["schedule"]
     end
   end
 end

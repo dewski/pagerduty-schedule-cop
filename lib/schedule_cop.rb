@@ -10,6 +10,11 @@ module ScheduleCop
     return @redis if defined?(@redis)
     @redis = Redis.new(url: ENV["REDIS_URL"])
   end
+
+  def self.octokit
+    return @octokit if defined?(@octokit)
+    @octokit = Octokit::Client.new(access_token: ENV["OCTOKIT_ACCESS_TOKEN"])
+  end
 end
 
 require_relative './schedule_cop/schedule'
