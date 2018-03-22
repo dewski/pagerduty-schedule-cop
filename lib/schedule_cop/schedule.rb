@@ -55,10 +55,6 @@ module ScheduleCop
               puts "[#{@name}][#{layer["name"]}] Could not create issue for #{pagerduty_id} at #{index}."
             end
           end
-
-          # TODO: Find index of removed users
-
-          [added, removed]
         end
 
         store(current_users, layer: layer["id"])

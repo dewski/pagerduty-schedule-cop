@@ -17,10 +17,11 @@ class Pagerduty
   end
 
   private
-    def api(path, query = {})
-      self.class.get(path, query: query, headers: {
-        'Authorization' => "Token token=#{@token}",
-        'Accept' => 'application/vnd.pagerduty+json;version=2',
-      })
-    end
+
+  def api(path, query = {})
+    self.class.get(path, query: query, headers: {
+      'Authorization' => "Token token=#{@token}",
+      'Accept' => 'application/vnd.pagerduty+json;version=2',
+    })
+  end
 end
