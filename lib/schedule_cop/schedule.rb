@@ -45,7 +45,7 @@ module ScheduleCop
           # offboarded.
           offboarded = removed - users.keys
 
-          puts "[#{@name}][#{layer["name"]}] Adding #{added.length} users, removing #{removed.length} users, #{offboarded.length} users offboarded."
+          puts "[#{@name}][#{layer["name"]}] #{added.length} users added, #{removed.length} users removed, #{offboarded.length} users offboarded."
 
           offboarded.each do |pagerduty_id|
             index = previous_schedule_users.find_index { |key, _| pagerduty_id == key }
