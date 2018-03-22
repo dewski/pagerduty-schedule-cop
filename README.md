@@ -34,6 +34,14 @@ $ heroku addons:create redistogo:nano
 
 You'll want the scheduler to run `bin/check-schedules` every hour to 24 hours depending how soon you'd like to be notified after a user is off-boarded.
 
+The environment variables you'll need to set:
+
+```sh
+heroku config:set PAGERDUTY_API_KEY=key OCTOKIT_ACCESS_TOKEN=token
+```
+
+The `REDIS_URL` will be provided automatically after you add a Redis addon to the instance.
+
 ## Contributing
 
 1. Fork it
