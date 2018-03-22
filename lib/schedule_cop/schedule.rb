@@ -64,7 +64,7 @@ module ScheduleCop
     private
 
     def create_issue(username, schedule_name, index)
-      ScheduleCop.octokit.create_issue(@github_repository, "#{username} was removed from #{schedule_name}", "At #{index} index.")
+      ScheduleCop.octokit.create_issue(@github_repository, "#{username} was removed from #{schedule_name}", "They were removed at the #{index} position. That is right after $USER and right before $USER.")
     rescue Octokit::NotFound => error
       puts error
     rescue StandardError => error
