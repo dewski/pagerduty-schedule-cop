@@ -9,11 +9,11 @@ class Pagerduty
   end
 
   def users(offset: 0)
-    users = api('/users', offset: offset)
+    api('/users', offset: offset)
   end
 
   def schedule(id)
-    schedile = api("/schedules/#{id}")
+    api("/schedules/#{id}")
   end
 
   private
