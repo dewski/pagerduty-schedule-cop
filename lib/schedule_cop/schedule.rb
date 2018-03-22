@@ -49,8 +49,28 @@ module ScheduleCop
 
           offboarded.each do |pagerduty_id|
             index = previous_schedule_users.find_index { |key, _| pagerduty_id == key }
-            if issue = create_issue(previous_schedule_users[pagerduty_id], schedule_name, index)
-              puts "[#{@name}][#{layer["name"]}] Created issue for #{pagerduty_id} at #{issue[:html_url]}."
+            username = previous_schedule_users[pagerduty_id]
+            previous_schedule_users_array = Array(previous_schedule_users)
+
+
+            # The person removed was in the front of the rotation, there wasn't
+            # anyone before them.
+            previous_username = unless index.zero? && previous_schedule_users_array.length == 2
+              previous_schedule_users_array[index - 1]&.last
+            end
+
+            next_username = previous_schedule_users_array[index + 1]&.last
+
+            issue = create_issue(
+              username: username,
+              schedule_name: schedule_name,
+              position: index,
+              previous_username: previous_username,
+              next_username: next_username,
+            )
+
+            if issue
+              puts "[#{@name}][#{layer["name"]}] Created issue for #{username} at #{issue[:html_url]}."
             else
               puts "[#{@name}][#{layer["name"]}] Could not create issue for #{pagerduty_id} at #{index}."
             end
@@ -63,8 +83,32 @@ module ScheduleCop
 
     private
 
-    def create_issue(username, schedule_name, index)
-      ScheduleCop.octokit.create_issue(@github_repository, "#{username} was removed from #{schedule_name}", "They were removed at the #{index} position. That is right after $USER and right before $USER.")
+    def create_issue(username:, schedule_name:, position:, previous_username: nil, next_username: nil)
+      title = "#{username} was removed from #{schedule_name}"
+      body = case
+      when previous_username && next_username
+        <<~BODY
+        #{username} was removed at position #{position} in #{schedule_name}.
+
+        Their spot in the rotation was in between #{previous_username} and #{next_username}.
+        BODY
+      when previous_username
+        <<~BODY
+        #{username} was removed at the #{position} position in #{schedule_name}.
+
+        Their spot in the rotation was after #{previous_username}.
+        BODY
+      when next_username
+        <<~BODY
+        #{username} was removed at the #{position} position in #{schedule_name}.
+
+        Their spot in the rotation was before #{next_username}.
+        BODY
+      else
+        "#{username} was removed at the #{position} position in #{schedule_name}."
+      end
+
+      ScheduleCop.octokit.create_issue(@github_repository, title, body)
     rescue Octokit::NotFound => error
       puts error
     rescue StandardError => error
